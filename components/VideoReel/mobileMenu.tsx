@@ -1,13 +1,18 @@
 'use client';
 
-
+import React from 'react';
 import { FiMenu } from 'react-icons/fi';
 
-const MobileMenuButton = ({ setIsSidebarOpen }) => {
+
+interface MobileMenuButtonProps {
+  setIsSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>; 
+}
+
+const MobileMenuButton: React.FC<MobileMenuButtonProps> = ({ setIsSidebarOpen }) => {
   return (
     <button
       className="md:hidden fixed top-4 left-4 text-white"
-      onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+      onClick={() => setIsSidebarOpen((prev) => !prev)}  
     >
       <FiMenu />
     </button>
