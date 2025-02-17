@@ -16,7 +16,7 @@ interface SingleVideoProps {
   toggleMute: () => void;
 }
 
-// Define YouTube Player types
+
 interface YouTubePlayer {
   playVideo(): void;
   pauseVideo(): void;
@@ -85,7 +85,7 @@ const SingleVideo = ({
   const isYouTube = validVideoUrl && validVideoUrl.includes('youtube.com/watch');
   const videoId = validVideoUrl?.split('v=')[1];
 
-  // Create a ref to store the YouTube player instance
+ 
   const playerInstanceRef = useRef<YouTubePlayer | null>(null);
 
   useEffect(() => {

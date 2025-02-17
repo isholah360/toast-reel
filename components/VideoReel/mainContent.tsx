@@ -1,7 +1,7 @@
 import React from 'react';
 
 interface MainContentProps {
-  isSidebarOpen: boolean;  // Define the type of isSidebarOpen explicitly
+  isSidebarOpen: boolean;  
 }
 
 const MainContent: React.FC<MainContentProps> = ({ isSidebarOpen }) => {

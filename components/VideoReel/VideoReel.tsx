@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { DUMMY_VIDEOS, VideoItem } from './types';  // Correct import
+import { DUMMY_VIDEOS, VideoItem } from './types';  
 import SingleVideo from './SingleVideo';
 
 const VideoReel = () => {
