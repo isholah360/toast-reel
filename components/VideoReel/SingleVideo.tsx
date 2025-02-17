@@ -6,9 +6,10 @@ import { Video } from './types';
 import ProductTag from './ProductTag';
 import VideoControls from './VideoControls';
 import VideoDescription from './VideoDescription';
+import { VideoItem } from './data';
 
 interface SingleVideoProps {
-  video: Video;
+  video: VideoItem;
   isMuted: boolean;
   likedVideos: Set<number>;
   onLike: (videoId: number) => void;
