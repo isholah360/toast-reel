@@ -2,13 +2,13 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useInView } from 'react-intersection-observer';
-import { VideoItem } from './types';
+import { Video } from './types';
 import ProductTag from './ProductTag';
 import VideoControls from './VideoControls';
 import VideoDescription from './VideoDescription';
 
 interface SingleVideoProps {
-  video: VideoItem;
+  video: Video;
   isMuted: boolean;
   likedVideos: Set<number>;
   onLike: (videoId: number) => void;
@@ -16,9 +16,47 @@ interface SingleVideoProps {
   toggleMute: () => void;
 }
 
+// Define YouTube Player types
+interface YouTubePlayer {
+  playVideo(): void;
+  pauseVideo(): void;
+  mute(): void;
+  unMute(): void;
+  destroy(): void;
+}
+
+interface YouTubeEvent {
+  data: number;
+}
+
 declare global {
   interface Window {
-    YT: typeof YT;
+    YT: {
+      Player: new (
+        elementId: string,
+        config: {
+          videoId: string;
+          playerVars?: {
+            autoplay?: number;
+            controls?: number;
+            mute?: number;
+            playsinline?: number;
+            modestbranding?: number;
+            loop?: number;
+            playlist?: string;
+            origin?: string;
+          };
+          events?: {
+            onReady?: () => void;
+            onStateChange?: (event: YouTubeEvent) => void;
+            onError?: () => void;
+          };
+        }
+      ) => YouTubePlayer;
+      PlayerState: {
+        PLAYING: number;
+      };
+    };
     onYouTubeIframeAPIReady: () => void;
   }
 }
@@ -48,12 +86,10 @@ const SingleVideo = ({
   const videoId = validVideoUrl?.split('v=')[1];
 
   // Create a ref to store the YouTube player instance
-  const playerInstanceRef = useRef<any>(null);
+  const playerInstanceRef = useRef<YouTubePlayer | null>(null);
 
   useEffect(() => {
     if (!isYouTube || !videoId) return;
-
-    let loadingTimeout: NodeJS.Timeout;
 
     const loadYouTubeAPI = () => {
       return new Promise<void>((resolve) => {
@@ -97,7 +133,7 @@ const SingleVideo = ({
                 setIsPlaying(true);
               }
             },
-            onStateChange: (event) => {
+            onStateChange: (event: YouTubeEvent) => {
               setIsPlaying(event.data === window.YT.PlayerState.PLAYING);
             },
             onError: () => {
@@ -113,7 +149,7 @@ const SingleVideo = ({
       }
     };
 
-    loadingTimeout = setTimeout(() => {
+    const loadingTimeout = setTimeout(() => {
       if (isLoading) {
         setError('Loading timeout');
         setIsLoading(false);
