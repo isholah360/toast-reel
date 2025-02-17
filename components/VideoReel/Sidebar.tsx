@@ -2,7 +2,12 @@
 
 import { FiHome, FiSearch, FiCompass, FiFilm, FiMessageSquare, FiHeart, FiPlus, FiUser, FiMenu } from 'react-icons/fi';
 
-const Sidebar = ({ isSidebarOpen }) => {
+
+interface SidebarProps {
+  isSidebarOpen: boolean;  
+}
+
+const Sidebar = ({ isSidebarOpen }: SidebarProps) => {
   return (
     <div className={`fixed top-0 left-0 h-full bg-black text-white w-64 p-4 ${isSidebarOpen ? '' : 'hidden'} md:block`}>
       <h1 className="text-2xl font-bold mb-4">Toast-Reel</h1>
