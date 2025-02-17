@@ -2,10 +2,10 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useInView } from 'react-intersection-observer';
+import { VideoItem } from './types';
 import ProductTag from './ProductTag';
 import VideoControls from './VideoControls';
 import VideoDescription from './VideoDescription';
-import { VideoItem } from './type';  // Correct import
 
 interface SingleVideoProps {
   video: VideoItem;
@@ -14,6 +14,13 @@ interface SingleVideoProps {
   onLike: (videoId: number) => void;
   onShare: (videoId: number) => void;
   toggleMute: () => void;
+}
+
+declare global {
+  interface Window {
+    YT: typeof YT;
+    onYouTubeIframeAPIReady: () => void;
+  }
 }
 
 const SingleVideo = ({
@@ -29,77 +36,112 @@ const SingleVideo = ({
   const [error, setError] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [showControls, setShowControls] = useState(false);
-  const playerRef = useRef<YT.Player | null>(null);
-
+  const videoContainerRef = useRef<HTMLDivElement>(null);
+  const [playerReady, setPlayerReady] = useState(false);
+  
   const { ref, inView } = useInView({
     threshold: 0.6,
   });
 
-  const validVideoUrl = video.videoUrl || undefined;
+  const validVideoUrl = video.videoUrl || null;
   const isYouTube = validVideoUrl && validVideoUrl.includes('youtube.com/watch');
   const videoId = validVideoUrl?.split('v=')[1];
 
+  // Create a ref to store the YouTube player instance
+  const playerInstanceRef = useRef<any>(null);
+
   useEffect(() => {
-    if (!isYouTube) return;
+    if (!isYouTube || !videoId) return;
 
-    // Load YouTube IFrame API
-    if (!window.YT) {
-      const tag = document.createElement('script');
-      tag.src = 'https://www.youtube.com/iframe_api';
-      const firstScriptTag = document.getElementsByTagName('script')[0];
-      firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
+    let loadingTimeout: NodeJS.Timeout;
 
-      window.onYouTubeIframeAPIReady = initPlayer;
-    } else {
-      initPlayer();
-    }
-
-    function initPlayer() {
-      playerRef.current = new window.YT.Player(`youtube-iframe-${video.id}`, {
-        videoId: videoId,
-        playerVars: {
-          autoplay: inView ? 1 : 0,
-          controls: 0,
-          mute: isMuted ? 1 : 0,
-          playsinline: 1,
-          modestbranding: 1,
-          loop: 1,
-          playlist: videoId
-        },
-        events: {
-          onReady: () => {
-            setIsLoading(false);
-            if (inView) {
-              setIsPlaying(true);
-            }
-          },
-          onStateChange: (event: YT.OnStateChangeEvent) => {
-            setIsPlaying(event.data === window.YT.PlayerState.PLAYING);
-          },
-          onError: () => {
-            setError('Error loading video');
-            setIsLoading(false);
-          }
+    const loadYouTubeAPI = () => {
+      return new Promise<void>((resolve) => {
+        if (window.YT) {
+          resolve();
+          return;
         }
-      });
-    }
 
-    return () => {
-      if (playerRef.current) {
-        playerRef.current.destroy();
+        window.onYouTubeIframeAPIReady = () => {
+          resolve();
+        };
+
+        const tag = document.createElement('script');
+        tag.src = 'https://www.youtube.com/iframe_api';
+        const firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag?.parentNode?.insertBefore(tag, firstScriptTag);
+      });
+    };
+
+    const initializePlayer = async () => {
+      try {
+        await loadYouTubeAPI();
+
+        playerInstanceRef.current = new window.YT.Player(`youtube-player-${video.id}`, {
+          videoId: videoId,
+          playerVars: {
+            autoplay: inView ? 1 : 0,
+            controls: 0,
+            mute: isMuted ? 1 : 0,
+            playsinline: 1,
+            modestbranding: 1,
+            loop: 1,
+            playlist: videoId,
+            origin: window.location.origin
+          },
+          events: {
+            onReady: () => {
+              setPlayerReady(true);
+              setIsLoading(false);
+              if (inView) {
+                setIsPlaying(true);
+              }
+            },
+            onStateChange: (event) => {
+              setIsPlaying(event.data === window.YT.PlayerState.PLAYING);
+            },
+            onError: () => {
+              setError('Error loading video');
+              setIsLoading(false);
+            }
+          }
+        });
+      } catch (error) {
+        console.error('Error initializing YouTube player:', error);
+        setError('Error initializing video player');
+        setIsLoading(false);
       }
     };
-  }, [video.id, videoId, isYouTube, inView, isMuted]);
+
+    loadingTimeout = setTimeout(() => {
+      if (isLoading) {
+        setError('Loading timeout');
+        setIsLoading(false);
+      }
+    }, 10000);
+
+    initializePlayer();
+
+    return () => {
+      clearTimeout(loadingTimeout);
+      if (playerInstanceRef.current) {
+        playerInstanceRef.current.destroy();
+      }
+    };
+  }, [video.id, videoId, isYouTube, inView, isMuted, isLoading]);
 
   const handlePlayPause = () => {
-    if (!playerRef.current) return;
+    if (!playerInstanceRef.current || !playerReady) return;
 
-    if (isPlaying) {
-      playerRef.current.pauseVideo();
-    } else {
-      playerRef.current.playVideo();
+    try {
+      if (isPlaying) {
+        playerInstanceRef.current.pauseVideo();
+      } else {
+        playerInstanceRef.current.playVideo();
+      }
+    } catch (error) {
+      console.error('Error controlling video:', error);
     }
-    setIsPlaying(!isPlaying);
   };
 
   const handleMouseMove = () => {
@@ -109,20 +151,25 @@ const SingleVideo = ({
   };
 
   useEffect(() => {
-    if (!playerRef.current) return;
+    if (!playerInstanceRef.current || !playerReady) return;
 
-    if (isMuted) {
-      playerRef.current.mute();
-    } else {
-      playerRef.current.unMute();
+    try {
+      if (isMuted) {
+        playerInstanceRef.current.mute();
+      } else {
+        playerInstanceRef.current.unMute();
+      }
+    } catch (error) {
+      console.error('Error controlling volume:', error);
     }
-  }, [isMuted]);
+  }, [isMuted, playerReady]);
 
   return (
-    <div
+    <div 
       className="relative h-screen snap-start"
       onMouseMove={handleMouseMove}
       onMouseLeave={() => setShowControls(false)}
+      ref={videoContainerRef}
     >
       {isLoading && (
         <div className="absolute inset-0 flex items-center justify-center bg-black">
@@ -136,27 +183,12 @@ const SingleVideo = ({
         </div>
       )}
 
-      {isYouTube ? (
-        <div ref={ref} className="relative w-full h-full">
-          <div id={`youtube-iframe-${video.id}`} className="w-full h-full" />
-        </div>
-      ) : (
-        <video
-          ref={ref}
-          className="w-full h-full object-cover"
-          loop
-          muted={isMuted}
-          autoPlay={inView}
-          playsInline
-          poster="https://via.placeholder.com/400x720"
-        >
-          <source src={validVideoUrl} type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
-      )}
+      <div ref={ref} className="relative w-full h-full">
+        <div id={`youtube-player-${video.id}`} className="w-full h-full" />
+      </div>
 
       <div className={`transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0'}`}>
-        <VideoControls
+        <VideoControls 
           isMuted={isMuted}
           toggleMute={toggleMute}
           isLiked={likedVideos.has(video.id)}
@@ -167,10 +199,10 @@ const SingleVideo = ({
           onPlayPause={handlePlayPause}
         />
       </div>
-
+      
       <VideoDescription description={video.description} />
 
-      <div
+      <div 
         className="absolute inset-0"
         onMouseEnter={() => setShowTags(true)}
         onMouseLeave={() => setShowTags(false)}

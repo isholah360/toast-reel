@@ -1,4 +1,4 @@
-// Ensure consistency in VideoItem definition
+
 export interface Product {
   id: number;
   name: string;
@@ -7,15 +7,15 @@ export interface Product {
   y: number;
 }
 
-export interface VideoItem {  // Updated to match SingleVideo props
+export interface VideoItem {  
   id: number;
   videoUrl: string;
-  products: Product[]; // Updated to match the products
+  products: Product[]; 
   likes: number;
   description: string;
 }
 
-// Ensure this data matches the VideoItem structure
+
 export const DUMMY_VIDEOS: VideoItem[] = [
   {
     id: 1,
@@ -29,6 +29,42 @@ export const DUMMY_VIDEOS: VideoItem[] = [
   },
   {
     id: 2,
+    videoUrl: "https://www.youtube.com/watch?v=fa5DA6hpdLc",
+    products: [
+      { id: 3, name: "Designer Watch", price: "$199.99", x: 40, y: 60 }
+    ],
+    likes: 2345,
+    description: "Luxury accessories for every occasion."
+  },
+  {
+    id: 3,
+    videoUrl: "https://www.youtube.com/watch?v=ljfdGYlcA_M",
+    products: [
+      { id: 3, name: "Designer Watch", price: "$199.99", x: 40, y: 60 }
+    ],
+    likes: 2345,
+    description: "Luxury accessories for every occasion."
+  },
+  {
+    id: 4,
+    videoUrl: "https://www.youtube.com/watch?v=Q4V0Ke161-o",
+    products: [
+      { id: 3, name: "Designer Watch", price: "$199.99", x: 40, y: 60 }
+    ],
+    likes: 2345,
+    description: "Luxury accessories for every occasion."
+  },
+  {
+    id: 5,
+    videoUrl: "https://www.youtube.com/watch?v=Y1eZ_JydvZE",
+    products: [
+      { id: 3, name: "Designer Watch", price: "$199.99", x: 40, y: 60 }
+    ],
+    likes: 2345,
+    description: "Luxury accessories for every occasion."
+  },
+  {
+    id: 6,
     videoUrl: "https://www.youtube.com/watch?v=fa5DA6hpdLc",
     products: [
       { id: 3, name: "Designer Watch", price: "$199.99", x: 40, y: 60 }
