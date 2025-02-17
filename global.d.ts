@@ -1,4 +1,6 @@
-interface Window {
-  YT: any;
-  onYouTubeIframeAPIReady: () => void;
+declare global {
+  interface Window {
+    YT: any; 
+    onYouTubeIframeAPIReady: () => void;
+  }
 }
