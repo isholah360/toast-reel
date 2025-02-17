@@ -1,0 +1,70 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom global styles */
+
+body {
+  font-family: 'Arial', sans-serif; /* You can replace this with your preferred font */
+  background-color: #1a1a1a; /* Dark background color, replace as needed */
+  color: #ffffff; /* Default text color */
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Helvetica', sans-serif; /* Example font change for headings */
+  font-weight: 700;
+}
+
+/* Links */
+a {
+  color: #FF7A00; /* Orange color for links */
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+  color: #FFA500; /* Lighter orange for hover */
+}
+
+/* Add global styles to buttons */
+button {
+  background-color: #FF7A00; /* Button background */
+  color: white; /* Button text color */
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #FFA500; /* Hover effect for buttons */
+}
+
+/* Tailwind screen breakpoints */
+@media (max-width: 1024px) {
+  /* Adjustments for tablet size */
+  body {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Adjustments for mobile */
+  body {
+    font-size: 14px;
+  }
+}
+
+/* Customize scrollbar styles (optional) */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+ 
+}
