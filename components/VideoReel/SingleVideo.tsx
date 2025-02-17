@@ -5,7 +5,7 @@ import { useInView } from 'react-intersection-observer';
 import ProductTag from './ProductTag';
 import VideoControls from './VideoControls';
 import VideoDescription from './VideoDescription';
-import { VideoItem } from './data';
+import { VideoItem } from './type';  // Correct import
 
 interface SingleVideoProps {
   video: VideoItem;
@@ -30,13 +30,12 @@ const SingleVideo = ({
   const [isPlaying, setIsPlaying] = useState(false);
   const [showControls, setShowControls] = useState(false);
   const playerRef = useRef<YT.Player | null>(null);
-  
+
   const { ref, inView } = useInView({
     threshold: 0.6,
   });
 
-  const validVideoUrl = video.videoUrl || undefined;;
-
+  const validVideoUrl = video.videoUrl || undefined;
   const isYouTube = validVideoUrl && validVideoUrl.includes('youtube.com/watch');
   const videoId = validVideoUrl?.split('v=')[1];
 
@@ -103,15 +102,12 @@ const SingleVideo = ({
     setIsPlaying(!isPlaying);
   };
 
-  // Show/hide controls on mouse move
   const handleMouseMove = () => {
     setShowControls(true);
-    // Hide controls after 3 seconds of no mouse movement
     const timeoutId = setTimeout(() => setShowControls(false), 3000);
     return () => clearTimeout(timeoutId);
   };
 
-  // Handle mute toggling
   useEffect(() => {
     if (!playerRef.current) return;
 
@@ -123,7 +119,7 @@ const SingleVideo = ({
   }, [isMuted]);
 
   return (
-    <div 
+    <div
       className="relative h-screen snap-start"
       onMouseMove={handleMouseMove}
       onMouseLeave={() => setShowControls(false)}
@@ -160,7 +156,7 @@ const SingleVideo = ({
       )}
 
       <div className={`transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0'}`}>
-        <VideoControls 
+        <VideoControls
           isMuted={isMuted}
           toggleMute={toggleMute}
           isLiked={likedVideos.has(video.id)}
@@ -171,10 +167,10 @@ const SingleVideo = ({
           onPlayPause={handlePlayPause}
         />
       </div>
-      
+
       <VideoDescription description={video.description} />
 
-      <div 
+      <div
         className="absolute inset-0"
         onMouseEnter={() => setShowTags(true)}
         onMouseLeave={() => setShowTags(false)}

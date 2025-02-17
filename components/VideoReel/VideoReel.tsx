@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { DUMMY_VIDEOS, VideoItem } from './data';  // Import VideoItem and DUMMY_VIDEOS correctly
+import { DUMMY_VIDEOS, VideoItem } from './type';  // Correct import
 import SingleVideo from './SingleVideo';
 
 const VideoReel = () => {
@@ -28,7 +28,6 @@ const VideoReel = () => {
     alert(`Sharing video ${videoId}`);
   };
 
-  // Ensure that DUMMY_VIDEOS is an array and is correctly populated
   if (!Array.isArray(DUMMY_VIDEOS) || DUMMY_VIDEOS.length === 0) {
     return <p>No videos available</p>;
   }
