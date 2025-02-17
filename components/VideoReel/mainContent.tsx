@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import VideoReel from './VideoReel';
+
 
 const MainContent = ({ isSidebarOpen }) => {
   return (
