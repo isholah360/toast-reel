@@ -35,7 +35,7 @@ const SingleVideo = ({
     threshold: 0.6,
   });
 
-  const validVideoUrl = video.url || undefined;
+  const validVideoUrl = video.videoUrl || undefined;;
 
   const isYouTube = validVideoUrl && validVideoUrl.includes('youtube.com/watch');
   const videoId = validVideoUrl?.split('v=')[1];
