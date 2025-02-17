@@ -2,13 +2,13 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useInView } from 'react-intersection-observer';
-import { Video } from './types';
+import { VideoItem } from './types';
 import ProductTag from './ProductTag';
 import VideoControls from './VideoControls';
 import VideoDescription from './VideoDescription';
 
 interface SingleVideoProps {
-  video: Video;
+  video: VideoItem;
   isMuted: boolean;
   likedVideos: Set<number>;
   onLike: (videoId: number) => void;
